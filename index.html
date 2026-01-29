@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>复制页面路径</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+  <div id="app" class="max-w-md mx-auto">
+    <h1 class="text-xl font-bold mb-4">复制页面路径插件</h1>
+    <p class="text-gray-600 mb-4">使用 <code>/copy</code> 命令或点击工具栏按钮复制当前页面路径</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@logseq/libs@latest/dist/lsplugin.user.min.js"></script>
+  <script>
+    /**
+     * Logseq 复制页面路径插件
+     * 功能：
+     * 1. 复制当前页面的绝对路径
+     * 2. 复制当前页面的相对路径
+     * 3. 复制为 Markdown 链接格式
+     * 4. 复制为 file:// 协议链接
+     */
+
+    // 插件主函数
+    async function main() {
+      console.log('=== 复制页面路径插件已加载 ===');
+
+      // 获取当前页面的文件路径
+      async function getCurrentPagePath() {
+        try {
+          const currentPage = await logseq.Editor.getCurrentPage();
+          if (!currentPage) {
+            logseq.App.showMsg('⚠️ 请先打开一个页面', 'warning');
+            return null;
+          }
+          return currentPage;
+        } catch (error) {
+          console.error('获取当前页面失败:', error);
+          logseq.App.showMsg('❌ 获取页面信息失败', 'error');
+          return null;
+        }
+      }
+
+      // 复制文本到剪贴板
+      async function copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (err) {
+          console.error('复制失败:', err);
+          // 降级方案
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.position = 'fixed';
+          textarea.style.opacity = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            return true;
+          } catch (e) {
+            document.body.removeChild(textarea);
+            return false;
+          }
+        }
+      }
+
+      // 获取图形的根目录
+      async function getGraphPath() {
+        try {
+          const graph = await logseq.App.getCurrentGraph();
+          return graph ? graph.url.replace('file://', '') : null;
+        } catch (error) {
+          console.error('获取图形路径失败:', error);
+          return null;
+        }
+      }
+
+      // 构建完整的文件路径
+      async function buildFullPath(pageName, isJournal = false) {
+        const graphPath = await getGraphPath();
+        if (!graphPath) return null;
+
+        // 清理页面名称（移除非法字符）
+        const cleanPageName = pageName
+          .replace(/[\\/:*?"<>|]/g, '_')  // Windows 非法字符
+          .replace(/\//g, '%2F');  // 命名空间分隔符
+
+        const subDir = isJournal ? 'journals' : 'pages';
+        const fileName = isJournal
+          ? `${cleanPageName}.md`
+          : `${cleanPageName}.md`;
+
+        return {
+          absolute: `${graphPath}/${subDir}/${fileName}`,
+          relative: `./${subDir}/${fileName}`,
+          fileProtocol: `file://${graphPath}/${subDir}/${fileName}`,
+          markdown: `[${pageName}](./${subDir}/${fileName})`
+        };
+      }
+
+      // 命令1: 复制绝对路径
+      logseq.Editor.registerSlashCommand('copy page path', async () => {
+        const page = await getCurrentPagePath();
+        if (!page) return;
+
+        const paths = await buildFullPath(page.name, page['journal?']);
+        if (!paths) {
+          logseq.App.showMsg('❌ 无法构建路径', 'error');
+          return;
+        }
+
+        const success = await copyToClipboard(paths.absolute);
+        if (success) {
+          logseq.App.showMsg(`✅ 已复制绝对路径: ${paths.absolute.substring(0, 50)}...`, 'success');
+        } else {
+          logseq.App.showMsg('❌ 复制失败', 'error');
+        }
+      });
+
+      // 命令2: 复制相对路径
+      logseq.Editor.registerSlashCommand('copy page relative path', async () => {
+        const page = await getCurrentPagePath();
+        if (!page) return;
+
+        const paths = await buildFullPath(page.name, page['journal?']);
+        if (!paths) {
+          logseq.App.showMsg('❌ 无法构建路径', 'error');
+          return;
+        }
+
+        const success = await copyToClipboard(paths.relative);
+        if (success) {
+          logseq.App.showMsg(`✅ 已复制相对路径: ${paths.relative}`, 'success');
+        } else {
+          logseq.App.showMsg('❌ 复制失败', 'error');
+        }
+      });
+
+      // 命令3: 复制为 file:// 链接
+      logseq.Editor.registerSlashCommand('copy page file link', async () => {
+        const page = await getCurrentPagePath();
+        if (!page) return;
+
+        const paths = await buildFullPath(page.name, page['journal?']);
+        if (!paths) {
+          logseq.App.showMsg('❌ 无法构建路径', 'error');
+          return;
+        }
+
+        const success = await copyToClipboard(paths.fileProtocol);
+        if (success) {
+          logseq.App.showMsg(`✅ 已复制 file:// 链接`, 'success');
+        } else {
+          logseq.App.showMsg('❌ 复制失败', 'error');
+        }
+      });
+
+      // 命令4: 复制为 Markdown 链接
+      logseq.Editor.registerSlashCommand('copy page markdown link', async () => {
+        const page = await getCurrentPagePath();
+        if (!page) return;
+
+        const paths = await buildFullPath(page.name, page['journal?']);
+        if (!paths) {
+          logseq.App.showMsg('❌ 无法构建路径', 'error');
+          return;
+        }
+
+        const success = await copyToClipboard(paths.markdown);
+        if (success) {
+          logseq.App.showMsg(`✅ 已复制 Markdown 链接`, 'success');
+        } else {
+          logseq.App.showMsg('❌ 复制失败', 'error');
+        }
+      });
+
+      // 注册工具栏按钮
+      logseq.App.registerUIItem('toolbar', {
+        key: 'copy-page-path',
+        template: `
+          <a class="item" data-on-click="copyPath" title="复制页面路径">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+          </a>
+        `
+      });
+
+      // 监听工具栏按钮点击
+      logseq.provideModel({
+        async copyPath() {
+          const page = await getCurrentPagePath();
+          if (!page) return;
+
+          const paths = await buildFullPath(page.name, page['journal?']);
+          if (!paths) {
+            logseq.App.showMsg('❌ 无法构建路径', 'error');
+            return;
+          }
+
+          const success = await copyToClipboard(paths.absolute);
+          if (success) {
+            logseq.App.showMsg(`✅ 已复制: ${page.name}`, 'success');
+          } else {
+            logseq.App.showMsg('❌ 复制失败', 'error');
+          }
+        }
+      });
+
+      // 添加快捷键支持 (Ctrl/Cmd + Shift + P)
+      logseq.App.registerCommandPalette({
+        key: 'copy-page-path-shortcut',
+        label: '复制当前页面路径',
+        keybinding: 'mod+shift+p'
+      }, async () => {
+        const page = await getCurrentPagePath();
+        if (!page) return;
+
+        const paths = await buildFullPath(page.name, page['journal?']);
+        if (!paths) {
+          logseq.App.showMsg('❌ 无法构建路径', 'error');
+          return;
+        }
+
+        const success = await copyToClipboard(paths.absolute);
+        if (success) {
+          logseq.App.showMsg(`✅ 已复制: ${page.name}`, 'success');
+        } else {
+          logseq.App.showMsg('❌ 复制失败', 'error');
+        }
+      });
+
+      console.log('=== 插件初始化完成 ===');
+    }
+
+    // 启动插件
+    logseq.ready(main).catch(console.error);
+  </script>
+</body>
+</html>
