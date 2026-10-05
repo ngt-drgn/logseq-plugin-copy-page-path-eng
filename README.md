@@ -1,102 +1,100 @@
-# Logseq 复制页面路径插件
+# Logseq Copy Page Path Plugin
 
-一键复制当前页面的本地文件路径到剪贴板。
+One-click copy of the current page's local file path to the clipboard.
 
 ![image-20260129233950983](C:\Users\ZhuanZ\AppData\Roaming\Typora\typora-user-images\image-20260129233950983.png)
 
 ![image-20260129234011709](C:\Users\ZhuanZ\AppData\Roaming\Typora\typora-user-images\image-20260129234011709.png)
 
-## 功能特点
+## Features
 
-- ✅ 复制页面的绝对路径
-- ✅ 复制页面的相对路径
-- ✅ 复制为 `file://` 协议链接
-- ✅ 复制为 Markdown 链接格式
-- ✅ 支持斜杠命令 `/copy`
-- ✅ 支持工具栏按钮
-- ✅ 支持快捷键 `Ctrl/Cmd + Shift + P`
+- ✅ Copy the page's absolute path
+- ✅ Copy the page's relative path
+- ✅ Copy as a `file://` protocol link
+- ✅ Copy as a Markdown link
+- ✅ Supports slash command `/copy`
+- ✅ Supports toolbar button
+- ✅ Supports shortcut `Ctrl/Cmd + Shift + P`
 
-## 安装方法
+## Installation
 
-### 方法一：从插件市场安装（推荐）
+### Method 1: Install from the plugin marketplace (recommended)
 
-等待插件上架后，在 Logseq 插件市场搜索 "复制页面路径" 并安装。
+Once the plugin is listed in the marketplace, search for "Copy Page Path" in the Logseq plugin market and install it.
 
-### 方法二：手动安装
+### Method 2: Manual installation
 
-1. 下载本插件文件夹
-2. 打开 Logseq，点击右上角 `···` → `插件`
-3. 点击 `加载已解压的插件`
-4. 选择本插件文件夹
-5. 启用插件
+1. Download this plugin folder
+2. Open Logseq, click the top-right `···` → `Plugins`
+3. Click `Load unpacked plugin`
+4. Select this plugin folder
+5. Enable the plugin
 
-### 方法三：使用 Git
+### Method 3: Using Git
 
 ```bash
-# 将插件克隆到 Logseq 插件目录
-cd ~/.logseq/plugins  # macOS/Linux
+# Clone the plugin into the Logseq plugins directory
+d = ~/.logseq/plugins  # macOS/Linux
 cd %USERPROFILE%\.logseq\plugins  # Windows
-git clone [插件地址] logseq-plugin-copy-page-path
+git clone [plugin URL] logseq-plugin-copy-page-path
 ```
 
-## 使用方法
+## Usage
 
-### 1. 斜杠命令
+### 1. Slash command
 
-在编辑器中输入 `/copy`，选择以下命令：
+In the editor, type `/copy` and choose one of the following commands:
 
-| 命令 | 说明 |
-|------|------|
-| `/copy page path` | 复制绝对路径 |
-| `/copy page relative path` | 复制相对路径 |
-| `/copy page file link` | 复制 file:// 链接 |
-| `/copy page markdown link` | 复制 Markdown 格式链接 |
+| Command | Description |
+|--------|-------------|
+| `/copy page path` | Copy absolute path |
+| `/copy page relative path` | Copy relative path |
+| `/copy page file link` | Copy `file://` link |
+| `/copy page markdown link` | Copy Markdown link |
 
-### 2. 工具栏按钮
+### 2. Toolbar button
 
-点击右上角工具栏的 🔗 图标，快速复制当前页面的绝对路径。
+Click the 🔗 icon in the top-right toolbar to quickly copy the current page's absolute path.
 
-### 3. 快捷键
+### 3. Shortcut key
 
-- 可以设置
+- Can be configured
 
-## 使用示例
+## Example
 
-假设你的图形目录为 `C:\Users\Name\Documents\Logseq`，当前页面为 `项目管理`：
+Assume your graph directory is `C:\Users\Name\Documents\Logseq` and the current page is `Project Management`:
 
-| 复制类型 | 结果 |
-|---------|------|
-| 绝对路径 | `C:\Users\Name\Documents\Logseq\pages\项目管理.md` |
-| 相对路径 | `./pages/项目管理.md` |
-| file:// 链接 | `file://C:\Users\Name\Documents\Logseq\pages\项目管理.md` |
-| Markdown 链接 | `[项目管理](./pages/项目管理.md)` |
+| Copy type | Result |
+|-----------|--------|
+| Absolute path | `C:\Users\Name\Documents\Logseq\pages\Project Management.md` |
+| Relative path | `./pages/Project Management.md` |
+| `file://` link | `file://C:\Users\Name\Documents\Logseq\pages\Project Management.md` |
+| Markdown link | `[Project Management](./pages/Project Management.md)` |
 
-## 支持的页面类型
+## Supported page types
 
-- ✅ 普通页面 (pages/)
-- ✅ 日志页面 (journals/)
-- ✅ 命名空间页面 (pages/namespace%2Fpage.md)
+- ✅ Regular pages (`pages/`)
+- ✅ Journal pages (`journals/`)
+- ✅ Namespaced pages (`pages/namespace%2Fpage.md`)
 
-## 注意事项
+## Notes
 
-1. 插件需要访问图形的文件系统路径，请确保图形已正确加载
-2. 页面名称中的非法字符会被替换为下划线 `_`
-3. 如果复制失败，请检查浏览器/应用是否允许访问剪贴板
-3. 页面需要有内容，有内容的话才会产生markdown，才能够复制这个markdown的地址
+1. The plugin needs access to the graph's file system path; make sure the graph is loaded correctly.
+2. Illegal characters in page names will be replaced with underscores `_`.
+3. If copying fails, check whether the browser/app is allowed to access the clipboard.
+4. A page must contain content; only then can a Markdown link be generated and copied.
 
-## 兼容性
+## Compatibility
 
-- Logseq 0.9.x 及以上版本
-- 支持 Windows、macOS、Linux
-- 支持桌面端和 Web 端（Web 端部分功能受限）
+- Logseq 0.9.x and above
+- Supports Windows, macOS, and Linux
+- Supports desktop and web versions (some features are limited on the web version)
 
+## Feedback
 
+If you have any issues or suggestions, please report them in GitHub Issues.
 
-## 问题反馈
-
-如有问题或建议，请在 GitHub Issues 中反馈。
-
-## 许可证
+## License
 
 MIT License
 
