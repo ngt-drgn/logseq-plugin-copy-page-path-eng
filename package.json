@@ -1,7 +1,7 @@
 {
   "name": "logseq-plugin-copy-page-path",
   "version": "1.0.0",
-  "description": "一键复制当前页面的本地文件路径到剪贴板",
+  "description": "Copy the current page's local file path to the clipboard with one click",
   "main": "index.html",
   "author": "User",
   "license": "MIT",
@@ -10,8 +10,9 @@
   },
   "logseq": {
     "id": "_copypagepath",
-    "title": "复制页面路径",
+    "title": "Copy Page Path",
     "icon": "./icon.svg",
-    "description": "复制当前页面的本地文件路径到剪贴板，支持绝对路径和相对路径"
+    "description": "Copy the current page's local file path to the clipboard, including both absolute and relative paths"
   }
 }
+
